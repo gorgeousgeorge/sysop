@@ -1,8 +1,12 @@
-//Richiede l'utilizzo della Gnu Scientific Library. Testata con la versione gsl-2.1-2 per processori x86_64 del repository extra di Arch Linux.
+//Richiede l'utilizzo della Gnu Scientific Library. 
+//Testata con la versione gsl-2.1-2 per processori x86_64 del repository extra di Arch Linux.
 //Se si usa il compilatore gcc, compilare con: 
+//
 //gcc -lgsl -lgslcblas -o main
+//
 //Per eseguire il main, bisogna che prima sia stato compilato anche receiver.c 
 //con l'istruzione:
+//
 //gcc receiver.c -o receiver
 
 #include <stdlib.h>
