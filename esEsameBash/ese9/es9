@@ -1,0 +1,54 @@
+#!/bin/bash
+echo inserire nome utente del quale si vogliono visualizzare i processi
+echo ed il relativo tempo di esecuzione.
+read USR
+VAR=$(ps -au$USR --sort=time)
+typeset -i place=0
+typeset -i index=0
+
+PROC=()
+TIME=()
+
+for word in $VAR 
+do
+	let "place=index%4"
+	case $place in
+		2)TIME+=($word);;
+		3)PROC+=($word);;
+		*);;
+	esac
+	index+=1
+done
+
+unset TIME[0]
+unset PROC[0]
+
+if ((${#PROC[@]} != ${#TIME[@]}))
+then
+	echo output parsing error
+else
+	for (( m=0; m<${#TIME[@]}; m++ ));
+	do	#converte TIME dal formato hh:mm:ss a ss	
+		arr=( $(echo ${TIME[m]} | tr ":" "\n") )
+		typeset -i val
+		typeset -i arrLength=${#arr[@]}
+		typeset -i sTime=0
+		for (( k=0; k<${arrLength}; k++ ));
+		do
+			val=10#${arr[k]}	
+			let "sTime+=$val*60**($arrLength-1-$k)"
+		done
+		TIME[m]=$sTime
+	done
+	length=${#PROC[@]}
+	typeset -i j
+	for (( j=1; j<=${length}; j++ ));
+	do
+	#bar=head -c ${TIME[$j]} < /dev/zero | tr '\0' '*'
+	log_time=$( (./flog2.out ${TIME[$j]} ) 2>&1 )
+	proc=${PROC[$j]}
+	nameLength=$(expr 16 - ${#proc})
+	printf "$proc"; printf '%*s' "$nameLength"; printf '%*s' "$log_time" | tr ' ' '*'; printf "\n"
+	#echo ${PROC[$j]} = eval printf '*%.0s' {1..${TIME[$j]}} 
+	done
+fi
