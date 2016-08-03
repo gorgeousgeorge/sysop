@@ -10,11 +10,15 @@ class MaxParallelo{
 			arrToSort[j]=rng.nextInt(101); 
 		System.out.println( "popolato arrToSort." );
 		System.out.println( "Lancio Multisorter." );
+
 		MultiSorter foo=new MultiSorter( arrToSort );
 		foo.multiSort();
 		System.out.println( "Multisorter ha finito: massimo ="+ arrToSort[99] + "\nVerifico che il risultato sia corretto." );
 
-		//ordino in ordine crescente con il metodo sort() della libreria java.util.Arrays e stampo l'elemento in ultima posizione 
+		//verifico che l'ultima posizione di arrToSort[] contenga effettivamente il massimo:
+		//uso sort() della libreria Arrays di java per mettere in ordine crescente arrToSort[]
+		//e ne stampo l'ultimo numero
+
 		Arrays.sort(arrToSort);
 		System.out.println("Arrays.sort() ha finito: massimo ="+ arrToSort[99]);
 	}
@@ -24,7 +28,7 @@ class MaxParallelo{
 class MultiSorter{
 	int nTh;
 	int arrToSort[];
-	//costruttore
+
 	public MultiSorter(int arrToSort[]){
 		this.arrToSort=arrToSort;
 	}
@@ -53,6 +57,11 @@ class MultiSorter{
 	}
 }
 
+//thread responsabile dell'ordinamento di 5 elementi di arrToSort, selezionati in base alla combinazione lineare (var*coeffVar + i*coeffInd + offset).
+//Variando i parametri 
+//var, coeffVar, coeffInd, offset 
+//il sorter lavora su sottoinsiemi diversi di elementi di arrToSort.
+
 class sorter extends Thread{
 
 	private int[] arrToSort;
@@ -62,6 +71,7 @@ class sorter extends Thread{
 	private int offset;
 	
 	//COSTRUTTORE: 
+	//
 	//
 	//arrToSort=array da ordinare;
 	//var=parametro aggiuntivo per creare combinazioni lineari di indici 
@@ -77,12 +87,11 @@ class sorter extends Thread{
 		this.offset=offset;
 	}
 
-	//effettua il sorting sulla selezione di elementi dell'array data dalla comb lineare al variare degli indici usati	
+	//Scambia di posto l'elemento individuato dall'indice i con quello di indice i+1 se il primo e' maggiore del secondo.
 	private void sort(){
 		int temp;
 		for (int i=0; i<4; i++){
 			if ( (var*coeffVar+i*coeffInd+offset)>=0 && arrToSort[ var*coeffVar+i*coeffInd+offset ]>arrToSort[ var*coeffVar+(i+1)*coeffInd+offset ] ){
-				//scambio di posto i due elementi adiacenti
 				temp =arrToSort[ var*coeffVar+i*coeffInd+offset ];
 				arrToSort[ var*coeffVar+i*coeffInd+offset ] =arrToSort[ var*coeffVar+(i+1)*coeffInd+offset ];
 				arrToSort[ var*coeffVar+(i+1)*coeffInd+offset ] =temp;
@@ -90,7 +99,6 @@ class sorter extends Thread{
 		}
 	}
 	
-	//run
 	public void run(){
 		sort();
 		return;
