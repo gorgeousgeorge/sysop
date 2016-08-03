@@ -1,7 +1,9 @@
 #!/bin/bash
 echo inserire nome utente del quale si vogliono visualizzare i processi
 echo ed il relativo tempo di esecuzione.
+#salva nella variabile USR il nome utente 
 read USR
+#salva nella variabile VAR i processi in corso per l'utente USR ordinati per tempo di esecuzione crescente
 VAR=$(ps -au$USR --sort=time)
 typeset -i place=0
 typeset -i index=0
@@ -9,6 +11,8 @@ typeset -i index=0
 PROC=()
 TIME=()
 
+#effettua un parsing dell'output del comando, salvando 
+#negli array TIME i tempi di esecuzione e in PROC i nomi dei processi
 for word in $VAR 
 do
 	let "place=index%4"
@@ -44,11 +48,9 @@ else
 	typeset -i j
 	for (( j=1; j<=${length}; j++ ));
 	do
-	#bar=head -c ${TIME[$j]} < /dev/zero | tr '\0' '*'
-	log_time=$( (./flog2.out ${TIME[$j]} ) 2>&1 )
-	proc=${PROC[$j]}
-	nameLength=$(expr 16 - ${#proc})
-	printf "$proc"; printf '%*s' "$nameLength"; printf '%*s' "$log_time" | tr ' ' '*'; printf "\n"
-	#echo ${PROC[$j]} = eval printf '*%.0s' {1..${TIME[$j]}} 
+		log_time=$( (./flog2.out ${TIME[$j]} ) 2>&1 )
+		proc=${PROC[$j]}
+		nameLength=$(expr 16 - ${#proc})
+		printf "$proc"; printf '%*s' "$nameLength"; printf '%*s' "$log_time" | tr ' ' '*'; printf "\n"
 	done
 fi
