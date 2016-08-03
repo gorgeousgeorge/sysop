@@ -1,14 +1,15 @@
+//IncrocioBB utilizza la classe BlockingBuffer, una reimplementazione della classe BlockingQueue di java;
+//BlockingBuffer.class deve essere contenuto nella stessa directory in cui si vuole eseguire IncrocioBB.
+//I dettagli sulla reimplementazione si trovano nel sorgente BlockingBuffer.java.
+
 import java.util.*;
-//import java.util.concurrent.ArrayBlockingQueue;
-//import java.util.concurrent.BlockingQueue;
 
 
-
-class Pedestrian extends Thread{	//PEDONE
+//PEDONE
+class Pedestrian extends Thread{	
 	private BlockingBuffer semBuffer;
 	private BlockingBuffer pedBuffer;
 
-	//constructor
 	public Pedestrian (BlockingBuffer semBuffer, BlockingBuffer pedBuffer){
 		this.semBuffer = semBuffer;
 		this.pedBuffer = pedBuffer;
@@ -21,13 +22,15 @@ class Pedestrian extends Thread{	//PEDONE
 	}
 }
 
-class TrafficLight extends Thread{	//SEMAFORO
+//SEMAFORO
+class TrafficLight extends Thread{	
+	//semBuffer contiene le richieste di passaggio dei pedoni
 	private BlockingBuffer semBuffer;
+	//pedBuffer contiene i via libera del semaforo
 	private BlockingBuffer pedBuffer;
 
 	private Random traffic;
 
-	//constructor
 	public TrafficLight (BlockingBuffer semBuffer, BlockingBuffer pedBuffer){
 		this.semBuffer = semBuffer;
 		this.pedBuffer = pedBuffer;
@@ -39,8 +42,7 @@ class TrafficLight extends Thread{	//SEMAFORO
 	//poi produce un OK in pedBuffer
 	public void run(){
 		while(true){
-//			System.out.println("Semaforo ROSSO per i pedoni!");
-			try{ semBuffer.take(/*"Semaforo ROSSO per i pedoni!"*/""); } catch(InterruptedException e){}
+			try{ semBuffer.take(""); } catch(InterruptedException e){}
 			while ( traffic.nextFloat() > 0.5 ){
 				System.out.println("TROPPO TRAFFICO");
 			}
@@ -55,12 +57,15 @@ class IncrocioBB{
 		BlockingBuffer sbuf = new BlockingBuffer(5);
 		BlockingBuffer pbuf = new BlockingBuffer(5);
 		Random r=new Random();
-		int delay=r.nextInt(5000);
+		int delay;
+		//creo un thread semaforo, inizialmente rosso per i pedoni
 		System.out.println("Semaforo ROSSO per i pedoni!");
 		TrafficLight sem = new TrafficLight(sbuf,pbuf);
 		sem.start();
-
+		
+		//genera infiniti thread pedone, aspettando un tempo casuale (inferiore a 5 secondi) tra un pedone ed il successivo
 		while(true){
+			delay=r.nextInt(5000);
 			try { Thread.sleep(delay); } catch(InterruptedException e){}
 			new Pedestrian(sbuf,pbuf).start();
 		}
