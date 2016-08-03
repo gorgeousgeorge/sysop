@@ -2,7 +2,6 @@ import java.util.concurrent.*;
 
 class Spooling{
   public static void main(String argv[]){
-    //main
     SpoolTable spTable= new SpoolTable(10);
     
     Writer w1=new Writer(spTable);
@@ -23,6 +22,7 @@ class Spooling{
   }
 }
 
+//spooling table
 class SpoolTable{
   String table[];
   
@@ -39,7 +39,9 @@ class SpoolTable{
     this.mutex=new Semaphore(1);
   }
 }
-
+//problema del produttore-consumatore implementato con 2 semafori contatori (full,empty) ed un mutex
+//
+//consumatore
 class Reader extends Thread{
   SpoolTable spTable;
   
@@ -59,6 +61,7 @@ class Reader extends Thread{
   }
 }
 
+//produttore
 class Writer extends Thread{
   SpoolTable spTable;
   
@@ -70,7 +73,7 @@ class Writer extends Thread{
     while(true){
       try{spTable.empty.acquire();} catch(InterruptedException e){};
       try{spTable.mutex.acquire();} catch(InterruptedException e){};
-      spTable.table[spTable.in]="This is thread n."+this.getId();
+      spTable.table[spTable.in]="Written by thread n."+this.getId();
       spTable.in=(spTable.in+1)%spTable.rows;
       spTable.mutex.release();
       spTable.full.release();
