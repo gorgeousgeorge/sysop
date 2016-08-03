@@ -1,56 +1,67 @@
 #!/bin/bash
-echo inserire nome utente del quale si vogliono visualizzare i processi
+echo inserire nome utente del quale si vogliono visualizzare i PROC_NAMEessi
 echo ed il relativo tempo di esecuzione.
 #salva nella variabile USR il nome utente 
 read USR
 #salva nella variabile VAR i processi in corso per l'utente USR ordinati per tempo di esecuzione crescente
 VAR=$(ps -au$USR --sort=time)
-typeset -i place=0
-typeset -i index=0
+
+typeset -i PLACE=0
+typeset -i INDEX=0
 
 PROC=()
 TIME=()
 
 #effettua un parsing dell'output del comando, salvando 
-#negli array TIME i tempi di esecuzione e in PROC i nomi dei processi
-for word in $VAR 
+#nell' array TIME i tempi di esecuzione e in PROC i nomi dei processi
+for WORD in $VAR 
 do
-	let "place=index%4"
-	case $place in
-		2)TIME+=($word);;
-		3)PROC+=($word);;
+	let "PLACE=INDEX%4"
+	case $PLACE in
+		2)TIME+=($WORD);;
+		3)PROC+=($WORD);;
 		*);;
 	esac
-	index+=1
+	INDEX+=1
 done
 
+#i primi elementi di entrambi gli array contengono le intestazioni 
+#delle colonne dell'output di 'ps -au $USR' : vengono rimossi
 unset TIME[0]
 unset PROC[0]
 
+#se l'array dei processi e quello dei tempi di esecuzione hanno uguale lunghezza
+#stampo istogramma dei tempi di esecuzione.
+#in caso contrario, genera messaggio di errore.
 if ((${#PROC[@]} != ${#TIME[@]}))
 then
 	echo output parsing error
 else
+	#converte TIME dal formato hh:mm:ss a ss	
 	for (( m=0; m<${#TIME[@]}; m++ ));
-	do	#converte TIME dal formato hh:mm:ss a ss	
+	do	
 		arr=( $(echo ${TIME[m]} | tr ":" "\n") )
-		typeset -i val
-		typeset -i arrLength=${#arr[@]}
-		typeset -i sTime=0
-		for (( k=0; k<${arrLength}; k++ ));
+		typeset -i VAL
+		typeset -i ARR_LENGTH=${#arr[@]}
+		typeset -i STIME=0
+		for (( k=0; k<${ARR_LENGTH}; k++ ));
 		do
-			val=10#${arr[k]}	
-			let "sTime+=$val*60**($arrLength-1-$k)"
+			VAL=10#${arr[k]}	
+			let "STIME+=$VAL*60**($ARR_LENGTH-1-$k)"
 		done
-		TIME[m]=$sTime
+		TIME[m]=$STIME
 	done
-	length=${#PROC[@]}
+
+	LENGTH=${#PROC[@]}
 	typeset -i j
-	for (( j=1; j<=${length}; j++ ));
+	#genero istogramma:
+	#calcolo floor del log base 2 del tempo di esecuzione di un processo e stampo un 
+	#equivalente numero di asterischi a fianco del relativo nome del processo.
+	for (( j=1; j<=${LENGTH}; j++ ));
 	do
-		log_time=$( (./flog2.out ${TIME[$j]} ) 2>&1 )
-		proc=${PROC[$j]}
-		nameLength=$(expr 16 - ${#proc})
-		printf "$proc"; printf '%*s' "$nameLength"; printf '%*s' "$log_time" | tr ' ' '*'; printf "\n"
+		LOG_TIME=$( (./flog2.out ${TIME[$j]} ) 2>&1 )
+		PROC_NAME=${PROC[$j]}
+		NAME_LENGTH=$(expr 16 - ${#PROC_NAME})
+		printf "$PROC_NAME"; printf '%*s' "$NAME_LENGTH"; printf '%*s' "$LOG_TIME" | tr ' ' '*'; printf "\n"
 	done
 fi
